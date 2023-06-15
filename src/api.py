@@ -15,44 +15,49 @@ class OfficeToPdfConverter:
         data = response.json()
         return data["token"]
 
+    def get_headers(self):
+        return {"Authorization": "Bearer " + self.get_auth_token()}
+
     def start_task(self, tool):
         url = self.base_url + "start/" + tool
-        headers = {"Authorization": "Bearer " + self.get_auth_token()}
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=self.get_headers())
         data = response.json()
         return data["server"], data["task"]
 
     def upload_file(self, server, task, file_path):
         url = f"https://{server}/v1/upload"
-        headers = {"Authorization": "Bearer " + self.get_auth_token()}
-        files = {"file": open(file_path, "rb")}
         data = {"task": task}
-        response = requests.post(url, headers=headers, files=files, data=data)
+        with open(file_path, "rb") as f:
+            files = {"file": f}
+            response = requests.post(
+                url, headers=self.get_headers(), files=files, data=data
+            )
         return response.json()["server_filename"]
 
     def process_file(self, server, task, server_filename):
         url = f"https://{server}/v1/process"
-        headers = {"Authorization": "Bearer " + self.get_auth_token()}
         data = {
             "task": task,
             "tool": "officepdf",
             "files": [{"server_filename": server_filename, "filename": "output.pdf"}],
         }
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=self.get_headers(), json=data)
         return response.json()
 
     def download_file(self, server, task, output_path):
         url = f"https://{server}/v1/download/{task}"
-        headers = {"Authorization": "Bearer " + self.get_auth_token()}
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=self.get_headers())
         with open(output_path, "wb") as f:
             f.write(response.content)
 
     def convert_to_pdf(self, file_path: str, output_path: str) -> None:
-        server, task = self.start_task("officepdf")
-        server_filename = self.upload_file(server, task, file_path)
-        self.process_file(server, task, server_filename)
-        self.download_file(server, task, output_path)
+        try:
+            server, task = self.start_task("officepdf")
+            server_filename = self.upload_file(server, task, file_path)
+            self.process_file(server, task, server_filename)
+            self.download_file(server, task, output_path)
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
 
 # test
@@ -62,5 +67,5 @@ converter = OfficeToPdfConverter(
 )
 converter.convert_to_pdf(
     "/home/ensar/Desktop/ProcessAdminRepos/ilovepdf_python/ilovepdf_python/src/testDoc.docx",
-    "/home/ensar/Desktop/ProcessAdminRepos/ilovepdf_python/ilovepdf_python/src/output.pdf",
+    "/home/ensar/Desktop/ProcessAdminRepos/ilovepdf_python/ilovepdf_python/src/output/output.pdf",
 )
