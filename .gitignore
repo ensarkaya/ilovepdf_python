@@ -1,2 +1,4 @@
 .vscode
 */output
+tests/__pycache__/__init__.cpython-38.pyc
+tests/__pycache__/test_api.cpython-38.pyc
