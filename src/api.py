@@ -1,5 +1,5 @@
 import requests
-import json
+import logging
 
 
 class OfficeToPdfConverter:
@@ -14,6 +14,7 @@ class OfficeToPdfConverter:
         self.public_key = public_key
         self.secret_key = secret_key
         self.base_url = "https://api.ilovepdf.com/v1/"
+        logging.basicConfig(level=logging.INFO)
 
     def get_auth_token(self):
         """
@@ -126,20 +127,20 @@ class OfficeToPdfConverter:
         None
         """
         try:
+            logging.info("Starting conversion task...")
             server, task = self.start_task("officepdf")
+            logging.info("Task started successfully.")
+
+            logging.info("Uploading file...")
             server_filename = self.upload_file(server, task, file_path)
+            logging.info("File uploaded successfully.")
+
+            logging.info("Processing file...")
             self.process_file(server, task, server_filename)
+            logging.info("File processed successfully.")
+
+            logging.info("Downloading file...")
             self.download_file(server, task, output_path)
+            logging.info("File downloaded successfully.")
         except Exception as e:
-            print(f"An error occurred: {e}")
-
-
-# test
-converter = OfficeToPdfConverter(
-    "project_public_94b7107f154eade9ddf9d619cd3d8355_m8cuo86a581730c5087ed729eb48a7f3a1504",
-    "secret_key_6420af3ae87f5ba120c9d507d4282954_gk2Bu129ba2afe63ddfde5b7e53ca51c062db",
-)
-converter.convert_to_pdf(
-    "/home/ensar/Desktop/ProcessAdminRepos/ilovepdf_python/ilovepdf_python/src/testDoc.docx",
-    "/home/ensar/Desktop/ProcessAdminRepos/ilovepdf_python/ilovepdf_python/src/output/output.pdf",
-)
+            logging.error(f"An error occurred: {e}")
