@@ -6,8 +6,8 @@ from src.api import OfficeToPdfConverter
 class TestPdfConverter(unittest.TestCase):
     def setUp(self):
         self.converter = OfficeToPdfConverter(
-            "project_public_94b7107f154eade9ddf9d619cd3d8355_m8cuo86a581730c5087ed729eb48a7f3a1504",
-            "secret_key_6420af3ae87f5ba120c9d507d4282954_gk2Bu129ba2afe63ddfde5b7e53ca51c062db",
+            "public_key",
+            "secret_key",
         )
 
     def test_get_auth_token(self):
